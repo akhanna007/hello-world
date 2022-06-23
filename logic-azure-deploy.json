@@ -858,7 +858,7 @@
                   "inputs": {
                     "body": "@outputs('Compose_DMF_Package_Zip_Request')",
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/CreateDmfPackageZip')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_myfunctionapp2306_name'), '/functions/CreateDmfPackageZip')]"
                     }
                   },
                   "runAfter": {

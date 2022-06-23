@@ -36,10 +36,10 @@
       "type": "string",
       "defaultValue": "https://login.microsoftonline.com/"
     },
-    "function_app_T7D365Operations_name": {
+    "function_app_myfunctionapp2306_name": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "T7D365Operations"
+      "defaultValue": "myfunctionapp2306"
     },
     "dynamicsax_1_environment": {
       "type": "string",
@@ -1001,7 +1001,7 @@
                   "inputs": {
                     "body": "@outputs('Compose_Extract_CSV_from_Excel_Sheet')",
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/ExtractSheetsFromExcelToCsv')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_myfunctionapp2306_name'), '/functions/ExtractSheetsFromExcelToCsv')]"
                     }
                   },
                   "runAfter": {
@@ -1057,7 +1057,7 @@
                   "inputs": {
                     "body": "@outputs('Compose_CreateCsvFromCsvMapping_Request')",
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/CreateCsvFromCsvMapping')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_myfunctionapp2306_name'), '/functions/CreateCsvFromCsvMapping')]"
                     }
                   },
                   "runAfter": {
@@ -1506,7 +1506,7 @@
               "defaultValue": {},
               "type": "String"
             },
-            "$function_app_T7D365Operations_name": {
+            "$function_app_myfunctionapp2306_name": {
               "defaultValue": {},
               "type": "String"
             }
@@ -1660,9 +1660,9 @@
             "type": "String",
             "value": "[parameters('destination_zip_package_path')]"
           },
-          "$function_app_T7D365Operations_name": {
+          "$function_app_myfunctionapp2306_name": {
             "type": "String",
-            "value": "[parameters('function_app_T7D365Operations_name')]"
+            "value": "[parameters('function_app_myfunctionapp2306_name')]"
           }
         }
       },

@@ -28,7 +28,7 @@
     }
   },
   "variables": {
-    "repoUrl": "",
+    "repoUrl": "https://github.com/Azure-Samples/functions-quickstart-javascript",
     "branch": "master",
     "functionName": "Echo",
     "hostingPlanName": "[parameters('functionAppName')]",

@@ -1,0 +1,1682 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "resource_group_name": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "logic_app_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The logic app name should be {direction}.{flipmind}.{subject}"
+      },
+      "defaultValue": "inbound.aciem.salesordercreation"
+    },
+    "dynamicsax_1_entity_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The Entity name"
+      },
+      "defaultValue": "ACIEMSalesOrderImportLog"
+    },
+    "dynamicsax_1_recurring_job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dynamicsax_1_token:authority": {
+      "type": "string",
+      "defaultValue": "https://login.microsoftonline.com/"
+    },
+    "function_app_T7D365Operations_name": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "T7D365Operations"
+    },
+    "dynamicsax_1_environment": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "D365FO environment (instance) id"
+      },
+      "defaultValue": "at-dev37d4f1dddae0958edevaos.cloudax.dynamics.com"
+    },
+    "dynamicsax_1_connection_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The dynamics connection name should be api-conn-dynamics-{dynamicsax_1_environment}"
+      },
+      "defaultValue": "api-conn-dynamics-aciem-salesordercreation"
+    },
+    "dynamicsax_1_company_code": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The dynamics compnay code"
+      },
+      "defaultValue": "USRT"
+    },
+    "dynamicsax_1_definition_group": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The dynamics DMF definition name {Excel file - flipmind}"
+      },
+      "defaultValue": "InboundACIEMSalesOrderCreation"
+    },
+    "dynamicsax_1_token:clientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Client (or Application) ID of the Azure Active Directory application."
+      },
+      "defaultValue": "3ce67ecd-4d3a-4130-9286-378bb8beccc2"
+    },
+    "dynamicsax_1_token:clientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Client secret of the Azure Active Directory application."
+      },
+      "defaultValue": "q6M-82Kt.cV_TnSsZc18vXbK2o9A1bV90-"
+    },
+    "dynamicsax_1_token:TenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "The tenant ID for the Azure Active Directory application."
+      },
+      "defaultValue": "t7dev.onmicrosoft.com"
+    },
+    "dynamicsax_1_token:grantType": {
+      "type": "string",
+      "metadata": {
+        "description": "Grant type"
+      },
+      "defaultValue": "client_credentials",
+      "allowedValues": [
+        "code",
+        "client_credentials"
+      ]
+    },
+    "inbound_container_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The inbound container name triggers this logic app."
+      },
+      "defaultValue": "inbound-aciem-salesordercreation"
+    },
+    "inbound_table_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The inbound table name that holds the logs."
+      },
+      "defaultValue": "InboundACIEMSalesOrderCreationLog"
+    },
+    "inbound_table_partition_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The inbound table partition key."
+      },
+      "defaultValue": "InboundACIEMSalesOrderCreation"
+    },
+    "office365_from_email_address": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The email address used to authorise the api connection. This will be the from email address for all out going emails."
+      },
+      "defaultValue": "aldar.b@ducoconsultancy.com"
+    },
+    "office365_error_email_addresses": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Send errors to these recipients (seperated by semicolons)."
+      },
+      "defaultValue": "aldar.b@ducoconsultancy.com"
+    },
+    "office365_success_email_addresses": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Send success to these recipients (seperated by semicolons)."
+      },
+      "defaultValue": "aldar.b@ducoconsultancy.com"
+    },
+    "office365_1_connection_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The office365 connection name should be api-conn-office365-{office365_from_email_address}, nore replace @ sign with -"
+      },
+      "defaultValue": "api-conn-office365-aldar.b-ducoconsultancy.com"
+    },
+    "storage_1_account_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The storage account name should be t7{flipmind}"
+      },
+      "defaultValue": "t07aciemstorage"
+    },
+    "azureblob_1_connection_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The blob connection name should be api-conn-blob-{flipmind}"
+      },
+      "defaultValue": "api-conn-blob-aciem"
+    },
+    "azureblob_1_privacySetting": {
+      "type": "string",
+      "metadata": {
+        "description": "Privacy Setting"
+      },
+      "defaultValue": "Private",
+      "allowedValues": [
+        "None",
+        "Private",
+        "Organizational",
+        "Public"
+      ]
+    },
+    "azurefile_1_connection_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The file connection name should be api-conn-file-{flipmind}"
+      },
+      "defaultValue": "api-conn-file-aciem"
+    },
+    "inbound_file_folder_error_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The file folder name that holds the logs. Must be lowercase."
+      },
+      "defaultValue": "inbound-aciem-salesordercreation-error"
+    },
+    "inbound_file_folder_success_name": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The file folder name that holds the logs. Must be lowercase."
+      },
+      "defaultValue": "inbound-aciem-salesordercreation-success"
+    },
+    "source_zip_package_path": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The blob container path to the zip package created in dynamics"
+      },
+      "defaultValue": "inbound-aciem-salesordercreation-zippackage-template"
+    },
+    "source_zip_package_filename": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The zip package file name"
+      },
+      "defaultValue": "InboundACIEMSalesOrderCreation.zip"
+    },
+    "destination_zip_package_path": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The destination path for the updated zip package"
+      },
+      "defaultValue": "inbound-aciem-salesordercreation-zippackage"
+    },
+    "excel_start_header_index": {
+      "type": "int",
+      "metadata": {
+        "description": "The header row of the excel file in zero-based index"
+      },
+      "defaultValue": 5
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {
+        "displayName": "[parameters('logic_app_name')]",
+        "environment": "uat",
+        "backup": "uat",
+        "cost_center": "uat",
+        "created_using": "uat",
+        "description": "uat",
+        "git_repo": "uat",
+        "hours_of_operation": "uat",
+        "name": "uat",
+        "owner": "uat",
+        "pipeline": "uat",
+        "remove_date": "uat",
+        "review_date": "uat",
+        "version": "uat"
+      }
+    },
+    "azuretables_1_connection_name": {
+      "type": "string",
+      "defaultValue": "api-conn-table-aciem"
+    },
+    "azuretables_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "api-conn-table-aciem"
+    },
+    "azuretables_1_storageaccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of your storage account"
+      },
+      "defaultValue": "t07aciemstorage"
+    },
+    "azuretables_1_privacySetting": {
+      "type": "string",
+      "metadata": {
+        "description": "Privacy Setting"
+      },
+      "defaultValue": "Private",
+      "allowedValues": [
+        "None",
+        "Private",
+        "Organizational",
+        "Public"
+      ]
+    }
+  },
+  "variables": {
+    "storage_1_account_id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[parameters('storage_1_account_name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "sku": {
+        "name": "Standard_RAGRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "sku": {
+        "name": "Standard_RAGRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default/', parameters('inbound_container_name'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storage_1_account_name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default/', parameters('source_zip_package_path'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storage_1_account_name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default/', parameters('destination_zip_package_path'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storage_1_account_name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default/', parameters('inbound_file_folder_error_name'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "accessTier": "TransactionOptimized",
+        "shareQuota": 100,
+        "enabledProtocols": "SMB"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('storage_1_account_name'), '/default/', parameters('inbound_file_folder_success_name'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]"
+      ],
+      "properties": {
+        "accessTier": "TransactionOptimized",
+        "shareQuota": 100,
+        "enabledProtocols": "SMB"
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('office365_1_connection_name')]",
+      "tags": "[parameters('resourceTags')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'office365')]"
+        },
+        "displayName": "[parameters('office365_1_connection_name')]"
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azurefile_1_connection_name')]",
+      "tags": "[parameters('resourceTags')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azurefile')]"
+        },
+        "displayName": "[parameters('azurefile_1_connection_name')]",
+        "parameterValues": {
+          "accountName": "[parameters('storage_1_account_name')]",
+          "accessKey": "[listKeys(variables('storage_1_account_id'), '2019-04-01').keys[0].value]"
+        },
+        "testLinks": [
+          {
+            "requestUri": "[uri('https://management.azure.com:443/', concat('subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/connections/', parameters('storage_1_account_name'), '/extensions/proxy/testconnection?api-version=2018-07-01-preview'))]",
+            "method": "get"
+          }
+        ]
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azureblob_1_connection_name')]",
+      "tags": "[parameters('resourceTags')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azureblob')]"
+        },
+        "displayName": "[parameters('azureblob_1_connection_name')]",
+        "parameterValues": {
+          "accountName": "[parameters('storage_1_account_name')]",
+          "accessKey": "[listKeys(variables('storage_1_account_id'), '2019-04-01').keys[0].value]",
+          "privacySetting": "[parameters('azureblob_1_privacySetting')]"
+        },
+        "testLinks": [
+          {
+            "requestUri": "[uri('https://management.azure.com:443/', concat('subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/connections/', parameters('storage_1_account_name'), '/extensions/proxy/testconnection?api-version=2018-07-01-preview'))]",
+            "method": "get"
+          }
+        ]
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azuretables_1_connection_name')]",
+      "tags": "[parameters('resourceTags')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azuretables')]"
+        },
+        "displayName": "[parameters('azuretables_1_connection_name')]",
+        "parameterValues": {
+          "storageaccount": "[parameters('storage_1_account_name')]",
+          "sharedkey": "[listKeys(variables('storage_1_account_id'), '2019-04-01').keys[0].value]",
+          "privacySetting": "[parameters('azuretables_1_privacySetting')]"
+        },
+        "testLinks": [
+          {
+            "requestUri": "[uri('https://management.azure.com:443/', concat('subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/connections/', parameters('storage_1_account_name'), '/extensions/proxy/testconnection?api-version=2018-07-01-preview'))]",
+            "method": "get"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('logic_app_name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Import_Successful": {
+              "type": "Scope",
+              "actions": {
+                "Copy_Source_File_to_Success_Folder": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azurefile_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": "@body('Get_Source_File_Content')",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                      "folderPath": "@parameters('$inbound_file_folder_success_name')",
+                      "name": "@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}",
+                      "queryParametersSingleEncoded": true
+                    }
+                  },
+                  "runAfter": {
+                    "Log_Success": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Delete_Blob_from_the_Original_Inbound_Path": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent(body('Parse_Blob_File_Metadata')?['Path']))}"
+                  },
+                  "runAfter": {
+                    "Send_Success_Email": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Delete_Blob_from_Source_DMF_Package_Path": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/',parameters('$destination_zip_package_path'),'/',variables('DestinationDmfPackageZipFilename')))}"
+                  },
+                  "runAfter": {
+                    "Delete_Blob_from_the_Original_Inbound_Path": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Copy_DMF_Package_to_Success_Folder": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azurefile_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": "@body('Get_DMF_Package_Content')",
+                    "headers": {
+                      "ReadFileMetadataFromServer": true
+                    },
+                    "path": "/datasets/default/files",
+                    "queries": {
+                      "folderPath": "@parameters('$inbound_file_folder_success_name')",
+                      "name": "@variables('DestinationDmfPackageZipFilename')",
+                      "queryParametersSingleEncoded": true
+                    }
+                  },
+                  "runAfter": {
+                    "Copy_Source_File_to_Success_Folder": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Log_Success": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azuretables_1']['connectionId']"
+                      }
+                    },
+                    "method": "patch",
+                    "body": {
+                      "ResourceGroupName": "@{parameters('$resource_group_name')}",
+                      "LogicApp": "@{parameters('$logic_app_name')}",
+                      "RunId": "@{variables('LogicAppRunId')}",
+                      "SourcePath": "/@{parameters('$inbound_file_folder_success_name')}/@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}",
+                      "SourceDmfPackage": "/@{parameters('$inbound_file_folder_success_name')}/@{variables('DestinationDmfPackageZipFilename')}",
+                      "DmfPackageName": "@{parameters('$dynamicsax_1_definition_group')}",
+                      "StorageAccount": "@{parameters('$storage_account_name')}",
+                      "Status": "@{actions('Create_DMF_Zip_Package_and_Upload_to_D365FO').status}",
+                      "Date": "@{convertFromUtc(utcNow(),'New Zealand Standard Time','ddMMyyyy')}",
+                      "Time": "@{convertFromUtc(utcNow(),'New Zealand Standard Time','HH:mm:ss')}"
+                    },
+                    "path": "/Tables/@{encodeURIComponent(parameters('$inbound_table_name'))}/entities(PartitionKey='@{encodeURIComponent(parameters('$inbound_table_partition_name'))}',RowKey='@{encodeURIComponent(workflow()['run']['name'])}')"
+                  },
+                  "runAfter": {}
+                },
+                "Send_Success_Email": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['office365']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "To": "@parameters('$office365_success_email_addresses')",
+                      "Subject": "Success: @{parameters('$logic_app_name')}",
+                      "Body": "<p>{<br>\n\"ResourceGroupName\":\"@{parameters('$resource_group_name')}\",<br>\n&nbsp;\"LogicApp\": \"@{parameters('$logic_app_name')}\",<br>\n&nbsp;\"RunId\": \"@{variables('LogicAppRunId')}\",<br>\n&nbsp;\"SourcePath\": \"/@{parameters('$inbound_file_folder_success_name')}/@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}\",<br>\n&nbsp;\"SourceDmfPackage\": \"/@{parameters('$inbound_file_folder_success_name')}/@{variables('DestinationDmfPackageZipFilename')}\",<br>\n&nbsp;\"DmfPackageName\": \"@{parameters('$dynamicsax_1_definition_group')}\",<br>\n&nbsp;\"Status\": \"@{actions('Create_DMF_Zip_Package_and_Upload_to_D365FO').status}\",<br>\n&nbsp;\"StorageAccount\": \"@{parameters('$storage_account_name')}\",<br>\n&nbsp;\"Date\": \"@{convertFromUtc(utcNow(),'New Zealand Standard Time','ddMMyyyy')}\",<br>\n&nbsp;\"Time\": \"@{convertFromUtc(utcNow(),'New Zealand Standard Time','HH:mm:ss')}\"<br>\n}</p>"
+                    },
+                    "path": "/v2/Mail"
+                  },
+                  "runAfter": {
+                    "Copy_DMF_Package_to_Success_Folder": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Create_DMF_Zip_Package_and_Upload_to_D365FO": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Create_DMF_Zip_Package_and_Upload_to_D365FO": {
+              "type": "Scope",
+              "actions": {
+                "Until_Processing_Complete": {
+                  "type": "Until",
+                  "expression": "@or(equals(coalesce(body('HTTP_Get_Data_Job_Result_Details')?['DataJobStatus']?['DataJobState'], 'NotRun'), 'Processed'),equals(coalesce(body('HTTP_Get_Data_Job_Result_Details')?['DataJobStatus']?['DataJobState'], 'NotRun'), 'ProcessedWithErrors'))",
+                  "limit": {
+                    "count": 120,
+                    "timeout": "PT1H"
+                  },
+                  "actions": {
+                    "Delay": {
+                      "type": "wait",
+                      "inputs": {
+                        "interval": {
+                          "count": 2,
+                          "unit": "Minute"
+                        }
+                      },
+                      "runAfter": {}
+                    },
+                    "HTTP_Get_Data_Job_Result_Details": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "https://@{parameters('$dynamicsax_1_environment')}/api/connector/jobstatus/@{parameters('$dynamicsax_1_recurring_job_id')}?JobId=@{body('HTTP_Enqueue_to_D365_Recurring_Data_Job')}",
+                        "authentication": {
+                          "type": "ActiveDirectoryOAuth",
+                          "authority": "@parameters('$dynamicsax_1_token:authority')",
+                          "tenant": "@parameters('$dynamicsax_1_token:tenantId')",
+                          "audience": "https://@{parameters('$dynamicsax_1_environment')}",
+                          "clientId": "@parameters('$dynamicsax_1_token:clientId')",
+                          "secret": "@parameters('$dynamicsax_1_token:clientSecret')"
+                        }
+                      },
+                      "runAfter": {
+                        "Delay": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "HTTP_Enqueue_to_D365_Recurring_Data_Job": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "If_Processed_Else_Throw_Exception": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@ body('HTTP_Get_Data_Job_Result_Details')?['DataJobStatus']?['DataJobState']",
+                          "Processed"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {},
+                  "runAfter": {
+                    "Until_Processing_Complete": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Terminate": {
+                        "type": "Terminate",
+                        "inputs": {
+                          "runStatus": "Failed",
+                          "runError": {
+                            "code": "@{int('__throw__')}"
+                          }
+                        },
+                        "runAfter": {
+                          "HTTP_Get_Data_Job_Errors": [
+                            "Succeeded",
+                            "TimedOut",
+                            "Skipped",
+                            "Failed"
+                          ]
+                        }
+                      },
+                      "HTTP_Get_Data_Job_Errors": {
+                        "type": "Http",
+                        "inputs": {
+                          "method": "POST",
+                          "uri": "https://@{parameters('$dynamicsax_1_environment')}/data/DataManagementDefinitionGroups/Microsoft.Dynamics.DataEntities.GetExecutionErrors",
+                          "body": {
+                            "executionId": "@{body('HTTP_Get_Data_Job_Result_Details')?['DataJobStatus']?['ExecutionIdentifier']}"
+                          },
+                          "authentication": {
+                            "type": "ActiveDirectoryOAuth",
+                            "authority": "@parameters('$dynamicsax_1_token:authority')",
+                            "tenant": "@parameters('$dynamicsax_1_token:tenantId')",
+                            "audience": "https://@{parameters('$dynamicsax_1_environment')}",
+                            "clientId": "@parameters('$dynamicsax_1_token:clientId')",
+                            "secret": "@parameters('$dynamicsax_1_token:clientSecret')"
+                          }
+                        },
+                        "runAfter": {}
+                      }
+                    }
+                  }
+                },
+                "Get_DMF_Package_Content": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/',parameters('$destination_zip_package_path'),'/',variables('DestinationDmfPackageZipFilename')))}/content",
+                    "queries": {
+                      "inferContentType": true
+                    }
+                  },
+                  "runAfter": {
+                    "Get_Source_File_Content": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Get_Source_File_Content": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent(body('Parse_Blob_File_Metadata')?['Path']))}/content",
+                    "queries": {
+                      "inferContentType": true
+                    }
+                  },
+                  "runAfter": {
+                    "Set_DestinationDmfPackageZipFilename": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Set_DestinationDmfPackageZipFilename": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "DestinationDmfPackageZipFilename",
+                    "value": "@{body('CreateDmfPackageZip')}"
+                  },
+                  "runAfter": {
+                    "CreateDmfPackageZip": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "CreateDmfPackageZip": {
+                  "type": "Function",
+                  "inputs": {
+                    "body": "@outputs('Compose_DMF_Package_Zip_Request')",
+                    "function": {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/CreateDmfPackageZip')]"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_DMF_Package_Zip_Request": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Compose_DMF_Package_Zip_Request": {
+                  "type": "Compose",
+                  "inputs": {
+                    "ExecutionID": "@variables('LogicAppRunId')",
+                    "SourceFilePath": "@{first(body('Parse_result_of_saved_csv_file'))}",
+                    "SourceDmfZipPath": "@body('Create_SAS_URI_DMF_Package_Zip_Template')?['WebUrl']",
+                    "DestinationDmfZipPath": "@body('Create_SAS_URI_Destination_DMF_Package_Zip_Path')?['WebUrl']",
+                    "ExcelStartHeaderIndex": "@variables('ExcelStartHeaderIndex')"
+                  },
+                  "runAfter": {
+                    "CreateCsvFromCsvMapping": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Create_SAS_URI_Destination_DMF_Package_Zip_Path": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "Permissions": "Read,Write",
+                      "StartTime": "@{utcNow()}",
+                      "ExpiryTime": "@{addMinutes(utcNow(), 60)}"
+                    },
+                    "path": "/datasets/default/CreateSharedLinkByPath",
+                    "queries": {
+                      "path": "/@{parameters('$destination_zip_package_path')}"
+                    }
+                  },
+                  "runAfter": {
+                    "Create_SAS_URI_CSV_Mapping_File": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Create_SAS_URI_DMF_Package_Zip_Template": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "Permissions": "Read",
+                      "StartTime": "@{utcNow()}",
+                      "ExpiryTime": "@{addMinutes(utcNow(), 60)}"
+                    },
+                    "path": "/datasets/default/CreateSharedLinkByPath",
+                    "queries": {
+                      "path": "/@{parameters('$source_zip_package_path')}/@{parameters('$source_zip_package_filename')}"
+                    }
+                  },
+                  "runAfter": {
+                    "Create_SAS_URI_Source_File": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Create_SAS_URI_Source_File": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "Permissions": "Read",
+                      "StartTime": "@{utcNow()}",
+                      "ExpiryTime": "@{addMinutes(utcNow(), 60)}"
+                    },
+                    "path": "/datasets/default/CreateSharedLinkByPath",
+                    "queries": {
+                      "path": "@{body('Parse_Blob_File_Metadata')?['Path']}"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "HTTP_Enqueue_to_D365_Recurring_Data_Job": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "https://@{parameters('$dynamicsax_1_environment')}/api/connector/enqueue/@{parameters('$dynamicsax_1_recurring_job_id')}?entity=@{parameters('$dynamicsax_1_entity_name')}&company=@{parameters('$dynamicsax_1_company_code')}",
+                    "headers": {
+                      "x-ms-dyn-externalidentifier": "@variables('ExecutionID')"
+                    },
+                    "body": "@body('Get_DMF_Package_Content')",
+                    "authentication": {
+                      "type": "ActiveDirectoryOAuth",
+                      "authority": "@parameters('$dynamicsax_1_token:authority')",
+                      "tenant": "@parameters('$dynamicsax_1_token:tenantId')",
+                      "audience": "https://@{parameters('$dynamicsax_1_environment')}",
+                      "clientId": "@parameters('$dynamicsax_1_token:clientId')",
+                      "secret": "@parameters('$dynamicsax_1_token:clientSecret')"
+                    }
+                  },
+                  "runAfter": {
+                    "Get_DMF_Package_Content": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Compose_Extract_CSV_from_Excel_Sheet": {
+                  "type": "Compose",
+                  "inputs": {
+                    "SourceFilePath": "@{body('Create_SAS_URI_Source_File')?['WebUrl']}",
+                    "ExcelSheets": [
+                      {
+                        "ExcelStartHeaderIndex": "@{variables('ExcelStartHeaderIndex')}",
+                        "SheetName": "sheet1",
+                        "DestinationCsvPath": "@{body('Create_SAS_URI_Destination_DMF_Package_Zip_Path')?['WebUrl']}",
+                        "DestinationCsvName": "@{body('Parse_Blob_File_Metadata')?['Name']}.csv"
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Create_SAS_URI_Destination_DMF_Package_Zip_Path": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "ExtractSheetsFromExcelToCsv": {
+                  "type": "Function",
+                  "inputs": {
+                    "body": "@outputs('Compose_Extract_CSV_from_Excel_Sheet')",
+                    "function": {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/ExtractSheetsFromExcelToCsv')]"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_Extract_CSV_from_Excel_Sheet": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Parse_result_of_saved_csv_file": {
+                  "type": "ParseJson",
+                  "inputs": {
+                    "content": "@body('ExtractSheetsFromExcelToCsv')",
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "ExtractSheetsFromExcelToCsv": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Create_SAS_URI_CSV_Mapping_File": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "Permissions": "Read",
+                      "StartTime": "@{utcNow()}",
+                      "ExpiryTime": "@{addMinutes(utcNow(), 60)}"
+                    },
+                    "path": "/datasets/default/CreateSharedLinkByPath",
+                    "queries": {
+                      "path": "/@{parameters('$source_zip_package_path')}/mapping_aciem_salesordercreation.csv"
+                    }
+                  },
+                  "runAfter": {
+                    "Create_SAS_URI_DMF_Package_Zip_Template": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "CreateCsvFromCsvMapping": {
+                  "type": "Function",
+                  "inputs": {
+                    "body": "@outputs('Compose_CreateCsvFromCsvMapping_Request')",
+                    "function": {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', parameters('function_app_T7D365Operations_name'), '/functions/CreateCsvFromCsvMapping')]"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_CreateCsvFromCsvMapping_Request": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Compose_CreateCsvFromCsvMapping_Request": {
+                  "type": "Compose",
+                  "inputs": {
+                    "DestinationCsvFilename": "@{body('Parse_Blob_File_Metadata')?['Name']}.csv",
+                    "DestinationCsvPath": "@{body('Create_SAS_URI_Destination_DMF_Package_Zip_Path')?['WebUrl']}",
+                    "SourceCsvPath": "@{first(body('Parse_result_of_saved_csv_file'))}",
+                    "SourceMappingConfigPath": "@{body('Create_SAS_URI_CSV_Mapping_File')?['WebUrl']}"
+                  },
+                  "runAfter": {
+                    "Parse_result_of_saved_csv_file": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Execution_Id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "DestinationDmfPackageZipFilename": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DestinationDmfPackageZipFilename",
+                    "type": "string"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Logic_App_Run_Id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Import_Failed": {
+              "type": "Scope",
+              "actions": {
+                "Copy_Source_File_to_Error_Folder": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azurefile_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": "@body('Get_Source_File_Content')",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                      "folderPath": "@parameters('$inbound_file_folder_error_name')",
+                      "name": "@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}",
+                      "queryParametersSingleEncoded": true
+                    }
+                  },
+                  "runAfter": {
+                    "Log_Exceptions": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Delete_Blob_from_the_Original_Inbound_Path_": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent(body('Parse_Blob_File_Metadata')?['Path']))}"
+                  },
+                  "runAfter": {
+                    "Send_Error_Email": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Delete_Blob_from_Source_DMF_Package_Path_": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                      }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/',parameters('$destination_zip_package_path'),'/',variables('DestinationDmfPackageZipFilename')))}"
+                  },
+                  "runAfter": {
+                    "Delete_Blob_from_the_Original_Inbound_Path_": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Filter_Scope_Errors": {
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@result('Create_DMF_Zip_Package_and_Upload_to_D365FO')",
+                    "where": "@equals(item()['status'], 'Failed')"
+                  },
+                  "runAfter": {}
+                },
+                "Copy_DMF_Package_to_Error_Folder": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azurefile_1']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": "@body('Get_DMF_Package_Content')",
+                    "headers": {
+                      "ReadFileMetadataFromServer": true
+                    },
+                    "path": "/datasets/default/files",
+                    "queries": {
+                      "folderPath": "@parameters('$inbound_file_folder_error_name')",
+                      "name": "-@{variables('DestinationDmfPackageZipFilename')}",
+                      "queryParametersSingleEncoded": true
+                    }
+                  },
+                  "runAfter": {
+                    "Copy_Source_File_to_Error_Folder": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Log_Exceptions": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azuretables_1']['connectionId']"
+                      }
+                    },
+                    "method": "patch",
+                    "body": {
+                      "ResourceGroupName": "@{parameters('$resource_group_name')}",
+                      "LogicApp": "@{parameters('$logic_app_name')}",
+                      "RunId": "@{variables('LogicAppRunId')}",
+                      "SourcePath": "/@{parameters('$inbound_file_folder_error_name')}/@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}",
+                      "SourceDmfPackage": "/@{parameters('$inbound_file_folder_error_name')}/@{variables('DestinationDmfPackageZipFilename')}",
+                      "DmfPackageName": "@{parameters('$dynamicsax_1_definition_group')}",
+                      "StorageAccount": "@{parameters('$storage_account_name')}",
+                      "Status": "@{actions('Create_DMF_Zip_Package_and_Upload_to_D365FO').status}",
+                      "Date": "@{convertFromUtc(utcNow(),'New Zealand Standard Time','ddMMyyyy')}",
+                      "Time": "@{convertFromUtc(utcNow(),'New Zealand Standard Time','HH:mm:ss')}",
+                      "Exception": "@{outputs('Compose_Exception_Message')}"
+                    },
+                    "path": "/Tables/@{encodeURIComponent(parameters('$inbound_table_name'))}/entities(PartitionKey='@{encodeURIComponent(parameters('$inbound_table_partition_name'))}',RowKey='@{encodeURIComponent(workflow()['run']['name'])}')"
+                  },
+                  "runAfter": {
+                    "Compose_Exception_Message": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Send_Error_Email": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['office365']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "To": "@parameters('$office365_error_email_addresses')",
+                      "Subject": "Failed: @{parameters('$logic_app_name')}",
+                      "Body": "<p>{<br>\n\"ResourceGroupName\":\"@{parameters('$resource_group_name')}\",<br>\n&nbsp;\"LogicApp\": \"@{parameters('$logic_app_name')}\",<br>\n&nbsp;\"RunId\": \"@{variables('LogicAppRunId')}\",<br>\n&nbsp;\"SourcePath\": \"/@{parameters('$inbound_file_folder_error_name')}/@{variables('LogicAppRunId')}-@{body('Parse_Blob_File_Metadata')?['Name']}\",<br>\n&nbsp;\"SourceDmfPackage\": \"/@{parameters('$inbound_file_folder_error_name')}/@{variables('DestinationDmfPackageZipFilename')}\",<br>\n&nbsp;\"DmfPackageName\": \"@{parameters('$dynamicsax_1_definition_group')}\",<br>\n&nbsp;\"StorageAccount\": \"@{parameters('$storage_account_name')}\",<br>\n&nbsp;\"Status\": \"@{actions('Create_DMF_Zip_Package_and_Upload_to_D365FO').status}\",<br>\n&nbsp;\"Date\": \"@{convertFromUtc(utcNow(),'New Zealand Standard Time','ddMMyyyy')}\",<br>\n&nbsp;\"Time\": \"@{convertFromUtc(utcNow(),'New Zealand Standard Time','HH:mm:ss')}\",<br>\n&nbsp;\"Exception\": \"@{outputs('Compose_Exception_Message')}\"<br>\n}</p>"
+                    },
+                    "path": "/v2/Mail"
+                  },
+                  "runAfter": {
+                    "Copy_DMF_Package_to_Error_Folder": [
+                      "Succeeded",
+                      "TimedOut",
+                      "Skipped",
+                      "Failed"
+                    ]
+                  }
+                },
+                "Compose_Exception_Message": {
+                  "type": "Compose",
+                  "inputs": {
+                    "Dynamic Exceptions": " @{coalesce( variables('ErrorExceptions'))}",
+                    "FTP Exception": "@{body('Filter_Scope_Errors')}"
+                  },
+                  "runAfter": {
+                    "Filter_Scope_Errors": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Create_DMF_Zip_Package_and_Upload_to_D365FO": [
+                  "TimedOut",
+                  "Skipped",
+                  "Failed"
+                ]
+              }
+            },
+            "Logic_App_Run_Id": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "LogicAppRunId",
+                    "type": "string",
+                    "value": "@{workflow()['run']['name']}"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Excel_Start_Header_Index": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Parse_Blob_File_Metadata": {
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@triggerBody()",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Id": {
+                      "type": "string"
+                    },
+                    "Name": {
+                      "type": "string"
+                    },
+                    "DisplayName": {
+                      "type": "string"
+                    },
+                    "Path": {
+                      "type": "string"
+                    },
+                    "LastModified": {
+                      "type": "string"
+                    },
+                    "Size": {
+                      "type": "integer"
+                    },
+                    "MediaType": {
+                      "type": "string"
+                    },
+                    "IsFolder": {
+                      "type": "boolean"
+                    },
+                    "ETag": {
+                      "type": "string"
+                    },
+                    "FileLocator": {
+                      "type": "string"
+                    },
+                    "LastModifiedBy": {}
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Excel_Start_Header_Index": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ExcelStartHeaderIndex",
+                    "type": "integer",
+                    "value": 2
+                  }
+                ]
+              },
+              "runAfter": {
+                "Parse_Blob_File_Metadata": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Initialize_Error_Exceptions": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ErrorExceptions",
+                    "type": "array"
+                  }
+                ]
+              },
+              "runAfter": {
+                "DestinationDmfPackageZipFilename": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Execution_Id": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ExecutionID",
+                    "type": "string",
+                    "value": "@{triggerOutputs()['headers']?['x-ms-request-id']}"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Initialize_Error_Exceptions": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            },
+            "$resource_group_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$logic_app_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_entity_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_recurring_job_id": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_token:authority": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_token:tenantId": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_token:clientId": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_token:clientSecret": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$storage_account_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$inbound_container_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$inbound_table_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$inbound_table_partition_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$inbound_file_folder_error_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$inbound_file_folder_success_name": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_environment": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_company_code": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$dynamicsax_1_definition_group": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$office365_from_email_address": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$office365_success_email_addresses": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$office365_error_email_addresses": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$source_zip_package_path": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$source_zip_package_filename": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$destination_zip_package_path": {
+              "defaultValue": {},
+              "type": "String"
+            },
+            "$function_app_T7D365Operations_name": {
+              "defaultValue": {},
+              "type": "String"
+            }
+          },
+          "triggers": {
+            "When_a_blob_is_added_or_modified_(properties_only)": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/default/triggers/batch/onupdatedfile",
+                "queries": {
+                  "folderId": "/@{parameters('$inbound_container_name')}",
+                  "checkBothCreatedAndModifiedDateTime": false,
+                  "maxFileCount": 1
+                }
+              },
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 1
+              },
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "runs": 1
+                }
+              },
+              "splitOn": "@triggerBody()"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azurefile_1": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azurefile')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azurefile_1_connection_name'))]",
+                "connectionName": "[parameters('azurefile_1_connection_name')]"
+              },
+              "azureblob_1": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azureblob')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_connection_name'))]",
+                "connectionName": "[parameters('azureblob_1_connection_name')]"
+              },
+              "azuretables_1": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'azuretables')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azuretables_1_connection_name'))]",
+                "connectionName": "[parameters('azuretables_1_connection_name')]"
+              },
+              "office365": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/', 'office365')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('office365_1_connection_name'))]",
+                "connectionName": "[parameters('office365_1_connection_name')]"
+              }
+            }
+          },
+          "$resource_group_name": {
+            "type": "String",
+            "value": "[parameters('resource_group_name')]"
+          },
+          "$logic_app_name": {
+            "type": "String",
+            "value": "[parameters('logic_app_name')]"
+          },
+          "$dynamicsax_1_entity_name": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_entity_name')]"
+          },
+          "$dynamicsax_1_recurring_job_id": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_recurring_job_id')]"
+          },
+          "$dynamicsax_1_token:authority": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_token:authority')]"
+          },
+          "$dynamicsax_1_token:tenantId": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_token:tenantId')]"
+          },
+          "$dynamicsax_1_token:clientId": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_token:clientId')]"
+          },
+          "$dynamicsax_1_token:clientSecret": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_token:clientSecret')]"
+          },
+          "$storage_account_name": {
+            "type": "String",
+            "value": "[parameters('storage_1_account_name')]"
+          },
+          "$inbound_container_name": {
+            "type": "String",
+            "value": "[parameters('inbound_container_name')]"
+          },
+          "$inbound_table_name": {
+            "type": "String",
+            "value": "[parameters('inbound_table_name')]"
+          },
+          "$inbound_table_partition_name": {
+            "type": "String",
+            "value": "[parameters('inbound_table_partition_name')]"
+          },
+          "$inbound_file_folder_error_name": {
+            "type": "String",
+            "value": "[parameters('inbound_file_folder_error_name')]"
+          },
+          "$inbound_file_folder_success_name": {
+            "type": "String",
+            "value": "[parameters('inbound_file_folder_success_name')]"
+          },
+          "$dynamicsax_1_environment": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_environment')]"
+          },
+          "$dynamicsax_1_company_code": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_company_code')]"
+          },
+          "$dynamicsax_1_definition_group": {
+            "type": "String",
+            "value": "[parameters('dynamicsax_1_definition_group')]"
+          },
+          "$office365_from_email_address": {
+            "type": "String",
+            "value": "[parameters('office365_from_email_address')]"
+          },
+          "$office365_error_email_addresses": {
+            "type": "String",
+            "value": "[parameters('office365_error_email_addresses')]"
+          },
+          "$office365_success_email_addresses": {
+            "type": "String",
+            "value": "[parameters('office365_success_email_addresses')]"
+          },
+          "$source_zip_package_path": {
+            "type": "String",
+            "value": "[parameters('source_zip_package_path')]"
+          },
+          "$source_zip_package_filename": {
+            "type": "String",
+            "value": "[parameters('source_zip_package_filename')]"
+          },
+          "$destination_zip_package_path": {
+            "type": "String",
+            "value": "[parameters('destination_zip_package_path')]"
+          },
+          "$function_app_T7D365Operations_name": {
+            "type": "String",
+            "value": "[parameters('function_app_T7D365Operations_name')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage_1_account_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azurefile_1_connection_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_connection_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azuretables_1_connection_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('office365_1_connection_name'))]"
+      ],
+      "tags": {
+        "displayName": "LogicApp"
+      }
+    }
+  ],
+  "outputs": {}
+}
